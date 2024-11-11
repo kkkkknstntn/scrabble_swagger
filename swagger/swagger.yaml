@@ -1,0 +1,342 @@
+openapi: 3.0.0
+info:
+  title: Scrabble API
+  version: 1.0.0
+  description: API для наслаждения замечательным скрабблом.
+
+tags:
+  - name: lobbies
+    description: Методы для поиска, создания и изменения лобби
+  - name: games
+    description: Методы для совершения и получения ходов
+
+paths:
+  /lobbies:
+    get:
+      tags:
+        - lobbies
+      summary: Получить список всех публичных лобби
+      responses:
+        '200':
+          description: Успешный ответ с массивом публичных лобби
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LobbyPublicDTO'
+    post:
+      tags:
+        - lobbies
+      summary: Создать новое лобби
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                privacy:
+                  type: boolean
+      responses:
+        '201':
+          description: Лобби успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LobbyResponseDTO'
+
+  /lobbies/{lobbyId}:
+    delete:
+      tags:
+        - lobbies
+      summary: Удалить лобби по ID
+      parameters:
+        - name: lobbyId
+          in: path
+          required: true
+          description: ID лобби для удаления
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Лобби успешно удалено
+
+  /lobbies/join:
+    post:
+      tags:
+        - lobbies
+      summary: Присоединиться к лобби по ключу
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LobbyJoin'
+      responses:
+        '200':
+          description: Успешное присоединение к лобби
+
+  /games/{gameId}/words:
+    get:
+      tags:
+        - games
+      summary: Получить состояние игры (матрица и счет пользователей) по ID игры
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          description: ID игры для получения состояния
+      responses:
+        '200':
+          description: Успешный ответ с состоянием игры (матрица и счет)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DictionaryDTO'
+
+  /games/{gameId}:
+    post:
+      tags:
+        - games
+      summary: Совершить ход в игре
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          description: ID игры для совершения хода
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameRequestDTO'
+      responses:
+        '200':
+          description: Ход валиден
+        '404':
+          description: Введенное слово/слова не существуют
+
+    get:
+      tags:
+        - games
+      summary: Установить SSE-соединение для получения ходов участников игры
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          description: ID игры для получения ходов через SSE
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameResponseDTO'
+
+  /games/{gameId}/skip:
+    post:
+      tags:
+        - games
+      summary: Пропустить ход, отправив список букв игрока.
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          description: ID игры для пропуска хода.
+          schema:
+            type: string      
+      requestBody:
+        required: true        
+        content:
+
+           application/json:
+
+             schema:
+
+               $ref: '#/components/schemas/LetterRequestDTO'
+               
+      responses:
+
+         '200':
+
+           description : 'Успешный пропуск хода'
+
+           content:
+
+             application/json:
+
+               schema:
+
+                 $ref:'#/components/schemas/LetterResponseDTO'
+
+         '400':
+
+           description : 'Ошибка в запросе'
+
+
+components:
+
+  schemas:
+
+    LobbyPublicDTO:
+
+       type : object 
+       properties:
+
+         lobby_id:
+
+           type: string 
+
+         lobby_status:
+
+           type: string 
+
+         user_count:
+
+           type: number 
+
+    LobbyResponseDTO:
+
+       type : object 
+       properties:
+
+         lobby_id:
+
+           type: string 
+
+         lobby_status:
+
+           type: string 
+
+         privacy:
+
+           type: boolean 
+
+         private_key:
+
+           type: string 
+
+    DictionaryDTO:
+
+       type : object 
+
+       properties:
+
+         dictionary:
+
+           type : array
+
+           items:
+
+             type : object
+
+             properties:
+
+               wordId:
+
+                 type : string 
+
+               description:
+
+                 type : string 
+
+    GameRequestDTO:
+
+       type : object 
+
+       properties:
+
+         field:
+
+           type : array
+
+           items:
+
+             type : array
+
+             items:
+
+               oneOf:
+
+                 - type : string
+
+                 - type : null
+
+    GameResponseDTO:
+
+       type : object 
+
+       properties:
+
+         field:
+
+           type : array
+
+           items:
+
+             type : array
+
+             items:
+
+               oneOf:
+
+                 - type : string
+
+                 - type : null
+
+         user_score:
+
+           type : array
+
+           items :
+             type : object
+
+             properties :
+
+               user_id :
+
+                 type : integer
+
+               score :
+
+                 type : number
+
+         active_user_id :
+
+           type : integer
+
+         game_status :
+           type : string
+
+
+    LetterRequestDTO :
+       type : object 
+       properties :
+         letters :
+           type : array 
+           items :
+             type : string 
+             minItems : 0 
+             maxItems : 7 
+             uniqueItems : false 
+             
+    LetterResponseDTO :
+       type : object 
+       properties :
+         game_status :
+           type : string 
+         letters :
+           type : array 
+           items :
+             type : string 
+  
+             
+    LobbyJoin :
+       type : object 
+       properties :
+         key :
+           type : string 
