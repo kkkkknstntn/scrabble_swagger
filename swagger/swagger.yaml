@@ -159,6 +159,7 @@ paths:
                 $ref: '#/components/schemas/GameResponseDTO'
 
   /games/{gameId}/skip:
+
     post:
       tags:
         - games
@@ -178,6 +179,7 @@ paths:
 
              schema:
 
+<<<<<<< Updated upstream
                $ref:'#/components/schemas/LetterRequestDTO'
                
       responses:
@@ -198,6 +200,130 @@ paths:
 
            description : 'Ошибка в запросе.'
 
+=======
+               $ref: '#/components/schemas/LetterRequestDTO'
+               
+      responses:
+
+         '200':
+
+           description : 'Успешный пропуск хода.'
+
+           content:
+
+             application/json:
+
+               schema:
+
+                 $ref: '#/components/schemas/LetterResponseDTO'
+
+         '400':
+
+           description : 'Ошибка в запросе.'
+  
+
+
+  /user/set_username/{userId}:
+    post:
+      summary: Установить никнейм пользователя
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Никнейм пользователя
+                  
+              required:
+                - username
+      responses:
+        '201':
+          description: Никнейм успешно установлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Неверный запрос
+        '409':
+          description: Никнейм уже занят
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                   
+        '500':
+          description: Ошибка сервера
+
+
+  /user/change_nickname/{userId}:
+    put:
+      summary: Изменить никнейм пользователя
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_username:
+                  type: string
+                  
+                  
+              required:
+                - new_username
+      responses:
+        '200':
+          description: Никнейм успешно обновлён
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    
+        '400':
+          description: Неверный запрос
+        '404':
+          description: Пользователь не найден
+        '409':
+          description: Никнейм уже занят
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Никнейм уже занят, выберите другой"
+        '500':
+          description: Ошибка сервера
+      
+
+
+>>>>>>> Stashed changes
 components:
 
   schemas:
