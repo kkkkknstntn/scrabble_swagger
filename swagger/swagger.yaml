@@ -9,6 +9,8 @@ tags:
     description: Методы для поиска, создания и изменения лобби
   - name: games
     description: Методы для совершения и получения ходов
+  - name: user
+    description: Методы для получения и обработки информации о пользователе
 
 paths:
   /lobbies:
@@ -92,7 +94,7 @@ paths:
                   lobby_id:
                     type: string  
                   users:
-                    type: array  #
+                    type: array
                     items:
                       $ref: '#/components/schemas/UserDTO'
         '404':
@@ -108,6 +110,8 @@ paths:
           in: path
           required: true
           description: ID игры для получения состояния.
+          schema:
+            type: string
       responses:
         '200':
           description: Успешный ответ с состоянием игры (матрица и счет).
@@ -159,7 +163,6 @@ paths:
                 $ref: '#/components/schemas/GameResponseDTO'
 
   /games/{gameId}/skip:
-
     post:
       tags:
         - games
@@ -174,31 +177,19 @@ paths:
       requestBody:
         required: true        
         content:
-
-           application/json:
-
-             schema:
-
-               $ref: '#/components/schemas/LetterRequestDTO'
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/LetterRequestDTO'
                
       responses:
-
-         '200':
-
+        '200':
            description : 'Успешный пропуск хода.'
-
            content:
-
              application/json:
-
-               schema:
-
-                 $ref: '#/components/schemas/LetterResponseDTO'
-
-         '400':
-
-           description : 'Ошибка в запросе.'
-  
+                schema:
+                  $ref: '#/components/schemas/LetterResponseDTO'
+        '400':
+          description : 'Ошибка в запросе.'
 
   /user:
     post:
@@ -305,7 +296,6 @@ paths:
         '500':
           description: Ошибка сервера
 
-
   /user/change_username/{userId}:
     put:
       summary: Изменить никнейм пользователя
@@ -355,23 +345,142 @@ paths:
                     example: "Никнейм уже занят, выберите другой"
         '500':
           description: Ошибка сервера
-      
 
-
+  /user/statistic/{userId}:
+    get:
+      tags:
+        - user
+      summary: Получить статистику, относящуюся к игроку с данным ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID пользователя для получения статистики
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Успешный запрос статистики игрока'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatisticResponseDTO'
+        '400':
+          description: 'Ошибка в запросе.'
+        
 components:
-
   schemas:
+  # Lobby
+    LobbyPublicDTO:
+      type : object 
+      properties:
+        lobby_id:
+          type : string 
+        lobby_status:
+          type : string 
+        user_count:
+          type : number 
+    LobbyResponseDTO:
+      type : object 
+      properties:
+        lobby_id:
+          type : string 
+        lobby_status:
+          type : string 
+        privacy:
+          type : boolean 
+        private_key:
+          type : string 
 
+  # Dictionary
+    DictionaryDTO:
+      type : object 
+      properties:
+        dictionary:
+          type : array
+          items:
+            type : object
+            properties:
+              wordId:
+                type : string 
+              description:
+                type : string
+
+  # Game
+    GameRequestDTO:
+      type : object 
+      properties:
+        field:
+          type : array
+          items:
+            type : array
+            items:
+              oneOf:
+                - type : string
+                - type : null
+
+    GameResponseDTO:
+      type : object 
+      properties:
+        field:
+          type : array
+          items:
+            type : array
+            items:
+              oneOf:
+                - type : string
+                - type : null
+        user_score:
+          type: array
+          items:
+            type: object
+            properties:
+              user_id:
+                type: integer
+              score:
+                type: number
+        active_user_id:
+          type: integer
+        game_status:
+          type: string
+
+  # Letter
+    LetterRequestDTO :
+      type: object 
+      properties :
+        letters :
+          type : array 
+          items :
+            type : string 
+            minItems : 0 
+            maxItems : 7 
+            uniqueItems : false 
+             
+    LetterResponseDTO :
+      type: object 
+      properties :
+        game_status :
+          type : string 
+        letters :
+          type : array 
+          items :
+            type : string 
+
+  # Stuff
+    LobbyJoin :
+      type: object 
+      properties :
+        key :
+
+  # User
     UserRequestDTO:
       type: object
       properties:
         username:
-          type: string
-          
-          
+          type: string 
       required:
         - username
-
+  
     UserResponseDTO:
       type: object
       properties:
@@ -384,183 +493,37 @@ components:
           
         message:
           type: string
-          
-
-
-    LobbyPublicDTO:
-
-       type : object 
-       properties:
-
-         lobby_id:
-
-           type : string 
-
-         lobby_status:
-
-           type : string 
-
-         user_count:
-
-           type : number 
-
-    LobbyResponseDTO:
-
-       type : object 
-       properties:
-
-         lobby_id:
-
-           type : string 
-
-         lobby_status:
-
-           type : string 
-
-         privacy:
-
-           type : boolean 
-
-         private_key:
-
-           type : string 
 
     UserDTO:
+      type : object 
+      properties:
+        user_id:
+          type : integer 
+        username:
+          type : string 
+        user_status:
+          type : string 
+          enum :
+            - READY 
+            - NOT_READY
 
-       type : object 
-       properties:
+  # Statistics
+    StatisticRequestDTO:
+      type: object
+      properties:
+        user_id:
+          type: integer
 
-         id:
-
-           type : integer 
-
-         username:
-
-           type : string 
-
-         user_status:
-
-           type : string 
-           enum :
-             - READY 
-             - NOT_READY 
-
-    DictionaryDTO:
-
-       type : object 
-
-       properties:
-
-         dictionary:
-
-           type : array
-
-           items:
-
-             type : object
-
-             properties:
-
-               wordId:
-
-                 type : string 
-
-               description:
-
-                 type : string 
-
-    GameRequestDTO:
-
-       type : object 
-
-       properties:
-
-         field:
-
-           type : array
-
-           items:
-
-             type : array
-
-             items:
-
-               oneOf:
-
-                 - type : string
-
-                 - type : null
-
-    GameResponseDTO:
-
-       type : object 
-
-       properties:
-
-         field:
-
-           type : array
-
-           items:
-
-             type : array
-
-             items:
-
-               oneOf:
-
-                 - type : string
-
-                 - type : null
-
-         user_score:
-
-           type : array
-
-           items :
-             type : object
-
-             properties :
-
-               user_id :
-
-                 type : integer
-
-               score :
-
-                 type : number
-
-         active_user_id :
-
-           type : integer
-
-         game_status :
-           type : string
-
-
-    LetterRequestDTO :
-       type : object 
-       properties :
-         letters :
-           type : array 
-           items :
-             type : string 
-             minItems : 0 
-             maxItems : 7 
-             uniqueItems : false 
-             
-    LetterResponseDTO :
-       type : object 
-       properties :
-         game_status :
-           type : string 
-         letters :
-           type : array 
-           items :
-             type : string 
-  
-             
-    LobbyJoin :
-       type : object 
-       properties :
-         key :
+    StatisticResponseDTO:
+      type: object
+      properties:
+        game_count:
+          type: integer
+        win_count:
+          type: integer
+        word_count:
+          type: integer
+        points_record:
+          type: integer
+        points_word_record:
+          type: integer
