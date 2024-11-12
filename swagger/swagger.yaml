@@ -5,194 +5,38 @@ info:
   description: API для наслаждения замечательным скрабблом.
 
 tags:
-  - name: lobbies
-    description: Методы для поиска, создания и изменения лобби
-  - name: games
-    description: Методы для совершения и получения ходов
-  - name: user
+  - name: User
     description: Методы для получения и обработки информации о пользователе
+  - name: Lobbies
+    description: Методы для поиска, создания и изменения лобби
+  - name: Games
+    description: Методы для совершения и получения ходов
 
 paths:
-  /lobbies:
+  /user:
     get:
       tags:
-        - lobbies
-      summary: Получить список всех публичных лобби
+        - User
+      summary: Получить список всех игроков
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID пользователя для получения статистики
+          schema:
+            type: integer
       responses:
         '200':
-          description: Успешный ответ с массивом публичных лобби
+          description: 'Успешный запрос статистики игрока'
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/LobbyPublicDTO'
+                  $ref: '#/components/schemas/StatisticResponseDTO'
     post:
       tags:
-        - lobbies
-      summary: Создать новое лобби
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                privacy:
-                  type: boolean
-      responses:
-        '201':
-          description: Лобби успешно создано
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LobbyResponseDTO'
-
-  /lobbies/{lobbyId}:
-    delete:
-      tags:
-        - lobbies
-      summary: Удалить лобби по ID
-      parameters:
-        - name: lobbyId
-          in: path
-          required: true
-          description: ID лобби для удаления
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Лобби успешно удалено
-    post:
-      tags:
-        - lobbies
-      summary: Присоединиться к лобби по ключу или ID.
-      parameters:
-        - name: lobby_id
-          in: path
-          required: false
-          description: ID лобби для присоединения (необязательный).
-          schema:
-            type: string
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                key:
-                  type: string 
-      responses:
-        '200':
-          description: Успешное присоединение к лобби.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  lobby_id:
-                    type: string  
-                  users:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/UserDTO'
-        '404':
-            description: Лобби не найдено.
-
-  /games/{gameId}/words:
-    get:
-      tags:
-        - games
-      summary: Получить состояние игры (матрица и счет пользователей) по ID игры
-      parameters:
-        - name: gameId
-          in: path
-          required: true
-          description: ID игры для получения состояния.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Успешный ответ с состоянием игры (матрица и счет).
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DictionaryDTO'
-
-  /games/{gameId}:
-    post:
-      tags:
-        - games
-      summary: Совершить ход в игре.
-      parameters:
-        - name: gameId
-          in: path
-          required: true
-          description: ID игры для совершения хода.
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GameRequestDTO'
-      responses:
-        '200':
-          description: Ход валиден.
-        '404':
-          description: Введенное слово/слова не существуют.
-
-    get:
-      tags:
-        - games
-      summary: Установить SSE-соединение для получения ходов участников игры.
-      parameters:
-        - name: gameId
-          in: path
-          required: true
-          description: ID игры для получения ходов через SSE.
-          schema:
-            type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GameResponseDTO'
-
-  /games/{gameId}/skip:
-    post:
-      tags:
-        - games
-      summary: Пропустить ход, отправив список букв игрока.
-      parameters:
-        - name: gameId
-          in: path
-          required: true
-          description: ID игры для пропуска хода.
-          schema:
-            type: string      
-      requestBody:
-        required: true        
-        content:
-          application/json:
-            schema: 
-              $ref: '#/components/schemas/LetterRequestDTO'
-               
-      responses:
-        '200':
-           description : 'Успешный пропуск хода.'
-           content:
-             application/json:
-                schema:
-                  $ref: '#/components/schemas/LetterResponseDTO'
-        '400':
-          description : 'Ошибка в запросе.'
-
-  /user:
-    post:
+        - User
       summary: Создать нового пользователя
       requestBody:
         required: true
@@ -223,82 +67,32 @@ paths:
         '500':
           description: Ошибка сервера
 
-  /user/{user_id}:
-    delete:
-      summary: Удалить пользователя
-      parameters:
-        - name: user_id
-          in: path
-          required: true
-          schema:
-            type: integer
-          
-      responses:
-        '200':
-          description: Пользователь успешно удалён
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    
-        '404':
-          description: Пользователь не найден
-        '500':
-          description: Ошибка сервера
-
-  /user/set_username/{userId}:
-    post:
-      summary: Установить никнейм пользователя
+  /user/{userId}:
+    get:
+      tags:
+        - User
+      summary: Получить статистику, относящуюся к игроку с данным ID
       parameters:
         - name: userId
           in: path
           required: true
+          description: ID пользователя для получения статистики
           schema:
             type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  description: Никнейм пользователя
-                  
-              required:
-                - username
       responses:
-        '201':
-          description: Никнейм успешно установлен
+        '200':
+          description: 'Успешный запрос статистики игрока'
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        '400':
-          description: Неверный запрос
-        '409':
-          description: Никнейм уже занят
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                   
-        '500':
-          description: Ошибка сервера
+                $ref: '#/components/schemas/StatisticResponseDTO'
+        '404':
+          description: 'Пользователь не найден'
 
-  /user/change_username/{userId}:
     put:
-      summary: Изменить никнейм пользователя
+      tags:
+        - User
+      summary: Изменить пользователя
       parameters:
         - name: user_id
           in: path
@@ -343,135 +137,503 @@ paths:
                   error:
                     type: string
                     example: "Никнейм уже занят, выберите другой"
-        '500':
-          description: Ошибка сервера
-
-  /user/statistic/{userId}:
-    get:
+    delete:
       tags:
-        - user
-      summary: Получить статистику, относящуюся к игроку с данным ID
+        - User
+      summary: Удалить пользователя
       parameters:
-        - name: userId
+        - name: user_id
           in: path
           required: true
-          description: ID пользователя для получения статистики
           schema:
             type: integer
+          
       responses:
         '200':
-          description: 'Успешный запрос статистики игрока'
+          description: Пользователь успешно удалён
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StatisticResponseDTO'
+                type: object
+                properties:
+                  message:
+                    type: string
+                    
+        '404':
+          description: Пользователь не найден
+
+  /lobbies:
+    get:
+      tags:
+        - Lobbies
+      summary: Получить список всех лобби
+      parameters:
+        - name: privacy
+          in: query
+          required: false
+          description: Фильтр по приватности лобби.
+          schema:
+            type: string
+            enum:
+              - private
+              - public
+              - all
+        - name: status
+          in: query
+          required: false
+          description: Фильтр по статусу лобби.
+          schema:
+            type: string
+            enum:
+              - WAITING 
+              - ACTIVE 
+              - FINISHED
+        - name: page
+          in: query
+          required: false
+          description: Номер страницы для получения (по умолчанию 1).
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          description: Количество лобби на странице (по умолчанию 10, максимум 100).
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+      responses:
+        '200':
+          description: Успешный ответ с массивом публичных лобби
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LobbyResponseDTO'
+    post:
+      tags:
+        - Lobbies
+      summary: Создать новое лобби
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                privacy:
+                  type: boolean
+      responses:
+        '201':
+          description: Лобби успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LobbyResponseDTO'
         '400':
-          description: 'Ошибка в запросе.'
+          description: Неверный запрос.
+
+  /lobbies/{lobbyId}/join:
+    post:
+      tags:
+        - Lobbies
+      summary: Присоединиться к лобби по ключу или ID.
+      parameters:
+        - name: lobby_id
+          in: path
+          required: false
+          description: ID лобби для присоединения (необязательный).
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string 
+      responses:
+        '200':
+          description: Успешное присоединение к лобби.
+        '404':
+            description: Лобби не найдено.
+
+  /lobbies/{lobbyId}:
+    get:
+      tags:
+        - Lobbies
+      summary: Получить обновления состояния лобби по ID через SSE
+      parameters:
+        - name: lobbyId
+          in: path
+          required: true
+          description: ID лобби для получения обновлений.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Успешный ответ с данными о лобби в режиме реального времени.
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/LobbyResponseDTO'
+        '403':
+          description: Пользователь не находится в лобби.      
+        '404':
+          description: Лобби не найдено.
+
+  /lobbies/{lobbyId}/ready:
+    post:
+      tags:
+        - Lobbies
+      summary: Подтвердить готовность игрока в лобби по ID
+      parameters:
+        - name: lobbyId
+          in: path
+          required: true
+          description: ID лобби для подтверждения готовности.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - READY
+                    - NOT_READY
+      responses:
+        '200':
+          description: Успешное подтверждение готовности.
+        '400':
+          description: Ошибка в запросе (недопустимый статус).
+        '403':
+          description: Пользователь не находится в лобби.      
+        '404':
+          description: Лобби не найдено.
+
+  /lobbies/{lobbyId}/exit:
+    delete:
+      tags:
+        - Lobbies
+      summary: Выйти из лобби по ID.
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          description: ID лобби для выхода.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Успешный выход из лобби.
+        '403':
+          description: Пользователь не находится в лобби.      
+        '404':
+          description: Лобби не найдено.
+
+  /games/{gameId}:
+    post:
+      tags:
+        - Games
+      summary: Совершить ход в игре.
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          description: ID игры для совершения хода.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameRequestDTO'
+      responses:
+        '200':
+          description: Ход валиден.
+        '400':
+          description: Введенное слово/слова не существуют.
+        '403':
+            description: Игрок не учавствует в данной игре.
+        '404':
+            description: Игра не найдена.
+        '409':
+            description: В данный момент очередь другого игрока.
+
+    get:
+      tags:
+        - Games
+      summary: Установить SSE-соединение для получения ходов участников игры.
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          description: ID игры для получения ходов через SSE.
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameResponseDTO'
+        '403':
+            description: Игрок не учавствует в данной игре.
+        '404':
+            description: Игра не найдена.
+
+  /games/{gameId}/skip:
+    post:
+      tags:
+        - Games
+      summary: Пропустить ход, отправив список букв игрока.
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          description: ID игры для пропуска хода.
+          schema:
+            type: string      
+      requestBody:
+        required: true        
+        content:
+           application/json:
+             schema: 
+              $ref: '#/components/schemas/LetterRequestDTO'
+               
+      responses:
+         '200':
+           description : 'Успешный пропуск хода.'
+           content:
+             application/json:
+               schema:
+                $ref: '#/components/schemas/LetterResponseDTO'
+         '403':
+            description: Игрок не учавствует в данной игре.
+         '404':
+            description: Игра не найдена.
+         '409':
+            description: В данный момент очередь другого игрока.
+
+  /games/{gameId}/words:
+    get:
+      tags:
+        - Games
+      summary: Получить состояние игры (матрица и счет пользователей) по ID игры
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          description: ID игры для получения состояния.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Успешный ответ с состоянием игры (матрица и счет).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DictionaryDTO'
+        '403':
+            description: Игрок не учавствует в данной игре.
+        '404':
+            description: Игра не найдена.
+
+  /games/{gameId}/exit:
+    delete:
+      tags:
+        - Games
+      summary: Выйти из игры по ID.
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          description: ID игры для выхода.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Успешный выход из игры.
+        '403':
+            description: Игрок не учавствует в данной игре.
+        '404':
+          description: Игра не найдена.
         
 components:
   schemas:
-  # Lobby
-    LobbyPublicDTO:
-      type : object 
-      properties:
-        lobby_id:
-          type : string 
-        lobby_status:
-          type : string 
-        user_count:
-          type : number 
+    UserLobbyResponseDTO:
+       type : object 
+       properties:
+         id:
+           type : integer 
+         username:
+           type : string 
+         user_status:
+           type : string 
+           enum :
+             - READY 
+             - NOT_READY 
+    UserGameResponseDTO:
+       type : object 
+       properties:
+         id:
+           type : integer 
+         username:
+           type : string 
+         score :
+           type : number
+
     LobbyResponseDTO:
-      type : object 
-      properties:
-        lobby_id:
-          type : string 
-        lobby_status:
-          type : string 
-        privacy:
-          type : boolean 
-        private_key:
-          type : string 
-
-  # Dictionary
+       type : object 
+       properties:
+         lobby_id:
+           type : string 
+         lobby_status:
+           type : string
+           enum :
+             - WAITING 
+             - ACTIVE 
+             - FINISHED
+         privacy:
+           type : boolean 
+         private_key:
+           type : string 
+         users:                     
+           type : array 
+           items :
+             $ref : '#/components/schemas/UserLobbyResponseDTO'
+  
     DictionaryDTO:
-      type : object 
-      properties:
-        dictionary:
-          type : array
-          items:
-            type : object
-            properties:
-              wordId:
-                type : string 
-              description:
-                type : string
+       type : object 
+       properties:
+         dictionary:
+           type : array
+           items:
+             type : object
+             properties:
+               wordId:
+                 type : string 
+               description:
+                 type : string 
 
-  # Game
     GameRequestDTO:
-      type : object 
-      properties:
+       type: object 
+       properties:
+         word:
+           type: object
+           additionalProperties:
+             uniqueItems: false
+             type: array
+             items:
+               type: integer
+               minItems: 2
+               maxItems: 2
+       example:
         field:
-          type : array
-          items:
-            type : array
-            items:
-              oneOf:
-                - type : string
-                - type : null
+           Ч: [0, 0]
+           Е: [1, 1]
+           Л: [2, 2]
+           О: [3, 3]
+           В: [4, 4]
+           К: [6, 6]
 
     GameResponseDTO:
-      type : object 
-      properties:
-        field:
-          type : array
-          items:
-            type : array
-            items:
-              oneOf:
-                - type : string
-                - type : null
-        user_score:
-          type: array
-          items:
-            type: object
-            properties:
-              user_id:
-                type: integer
-              score:
-                type: number
-        active_user_id:
-          type: integer
-        game_status:
+       type : object 
+       properties:
+         game_status:
           type: string
+          enum :
+             - WAITING 
+             - ACTIVE 
+             - FINISHED
+         field:
+           type : array
+           items:
+             type : array
+             items:
+               oneOf:
+                 - type : string
+                 - type : null
+         users:                     
+           type : array 
+           items :
+             $ref : '#/components/schemas/UserLobbyResponseDTO'
+         active_user_id :
+           type : integer
+         user_hand:
+            type : array
+            items :
+             type : string 
+         letters_in_pocket : 
+            type : integer
+       example:
+         game_status: ACTIVE
+         field:
+                - [null, 'Б', null, null, null, null, null, null, null, null, null, null, null, null, null]
+                - ['В', 'Е', 'Д', 'Р', 'А', null, null, null, null, null, null, null, null, null, null]
+                - [null, 'Г', 'Н', 'Е', 'З', 'Д', 'О', null, null, null, null, null, null, null, null]
+                - [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+                - [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+                - [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+                - [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+                - [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+                - [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+                - [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+                - [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+                - [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+                - [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+                - [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+                - [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+         users:
+                - user_id: 1
+                  score: 50
+                - user_id: 2
+                  score: 30
+                - user_id: 3
+                  score: 20
+         active_user_id: 1
+         user_hand:
+                - А
+                - Б
+                - В
+                - Г
+                - Д
+                - Е
+                - Ё
+         letters_in_pocket: 60
 
-  # Letter
     LetterRequestDTO :
-      type: object 
-      properties :
-        letters :
-          type : array 
-          items :
-            type : string 
-            minItems : 0 
-            maxItems : 7 
-            uniqueItems : false 
+       type : object 
+       properties :
+         letters :
+           type : array 
+           items :
+             type : string 
+             minItems : 0 
+             maxItems : 7 
+             uniqueItems : false 
              
     LetterResponseDTO :
-      type: object 
-      properties :
-        game_status :
-          type : string 
-        letters :
-          type : array 
-          items :
-            type : string 
-
-  # Stuff
-    LobbyJoin :
-      type: object 
-      properties :
-        key :
-
+       type : object 
+       properties :
+         game_status :
+           type : string 
+         letters :
+           type : array 
+           items :
+             type : string 
+      
   # User
     UserRequestDTO:
       type: object
@@ -493,20 +655,6 @@ components:
           
         message:
           type: string
-
-    UserDTO:
-      type : object 
-      properties:
-        user_id:
-          type : integer 
-        username:
-          type : string 
-        user_status:
-          type : string 
-          enum :
-            - READY 
-            - NOT_READY
-
   # Statistics
     StatisticRequestDTO:
       type: object
