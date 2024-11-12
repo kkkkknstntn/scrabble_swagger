@@ -9,6 +9,8 @@ tags:
     description: Методы для поиска, создания и изменения лобби
   - name: games
     description: Методы для совершения и получения ходов
+  - name: user
+    description: Методы для получения и обработки информации о пользователе
 
 paths:
   /lobbies:
@@ -92,7 +94,7 @@ paths:
                   lobby_id:
                     type: string  
                   users:
-                    type: array  #
+                    type: array
                     items:
                       $ref: '#/components/schemas/UserDTO'
         '404':
@@ -108,6 +110,8 @@ paths:
           in: path
           required: true
           description: ID игры для получения состояния.
+          schema:
+            type: string
       responses:
         '200':
           description: Успешный ответ с состоянием игры (матрица и счет).
@@ -173,185 +177,119 @@ paths:
       requestBody:
         required: true        
         content:
-
            application/json:
-
-             schema:
-
-               $ref:'#/components/schemas/LetterRequestDTO'
+             schema: 
+              $ref: '#/components/schemas/LetterRequestDTO'
                
       responses:
-
          '200':
-
            description : 'Успешный пропуск хода.'
-
            content:
-
              application/json:
-
                schema:
-
-                 $ref:'#/components/schemas/LetterResponseDTO'
-
+                $ref: '#/components/schemas/LetterResponseDTO'
          '400':
-
            description : 'Ошибка в запросе.'
 
+  /user/statistic/{user_id}:
+    get:
+      tags:
+        - user
+      summary: Получить статистику, относящуюся к игроку с данным ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID пользователя для получения статистики
+          schema:
+            type: integer
+    responses:
+      
+        
 components:
-
   schemas:
-
     LobbyPublicDTO:
-
        type : object 
        properties:
-
          lobby_id:
-
            type : string 
-
          lobby_status:
-
            type : string 
-
          user_count:
-
            type : number 
-
     LobbyResponseDTO:
-
        type : object 
        properties:
-
          lobby_id:
-
            type : string 
-
          lobby_status:
-
            type : string 
-
          privacy:
-
            type : boolean 
-
          private_key:
-
            type : string 
-
     UserDTO:
-
        type : object 
        properties:
-
          id:
-
            type : integer 
-
          username:
-
            type : string 
-
          user_status:
-
            type : string 
            enum :
              - READY 
              - NOT_READY 
 
     DictionaryDTO:
-
        type : object 
-
        properties:
-
          dictionary:
-
            type : array
-
            items:
-
              type : object
-
              properties:
-
                wordId:
-
                  type : string 
-
                description:
-
                  type : string 
 
     GameRequestDTO:
-
        type : object 
-
        properties:
-
          field:
-
            type : array
-
            items:
-
              type : array
-
              items:
-
                oneOf:
-
                  - type : string
-
                  - type : null
 
     GameResponseDTO:
-
        type : object 
-
        properties:
-
          field:
-
            type : array
-
            items:
-
              type : array
-
              items:
-
                oneOf:
-
                  - type : string
-
                  - type : null
-
          user_score:
-
            type : array
-
            items :
              type : object
-
              properties :
-
                user_id :
-
                  type : integer
-
                score :
-
                  type : number
-
          active_user_id :
-
            type : integer
-
          game_status :
            type : string
-
 
     LetterRequestDTO :
        type : object 
@@ -373,8 +311,7 @@ components:
            type : array 
            items :
              type : string 
-  
-             
+      
     LobbyJoin :
        type : object 
        properties :
