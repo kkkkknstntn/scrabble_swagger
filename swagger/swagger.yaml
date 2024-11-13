@@ -260,7 +260,7 @@ paths:
     get:
       tags:
         - Lobbies
-      summary: Получить обновления состояния лобби по ID через SSE
+      summary: Получить состояние лобби по ID
       parameters:
         - name: lobbyId
           in: path
@@ -270,7 +270,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Успешный ответ с данными о лобби в режиме реального времени.
+          description: lobby_status - WAITING - игра еще нечачалсь, ACTIVE - игра в процессе, FINISHED - игра завершена<br>pivacy - true - лобби приватное, false - лобби публичное<br>private_key - приватный ключ лобби<br>users - список участников лобби 
           content:
             text/event-stream:
               schema:
@@ -367,16 +367,17 @@ paths:
     get:
       tags:
         - Games
-      summary: Установить SSE-соединение для получения ходов участников игры.
+      summary: Получить акутальное состояние игры.
       parameters:
         - name: gameId
           in: path
           required: true
-          description: ID игры для получения ходов через SSE.
+          description: ID игры.
           schema:
             type: string
       responses:
         '200':
+          description: game_status - WAITING - игра еще нечачалсь, ACTIVE - игра в процессе, FINISHED - игра завершена<br>timer - оставшееся время на од игрока<br>field - матрица 15х15, представляющая игровое поле<br>users - список участников игры в порядке очереди ходов<br>active_user_id - id игрока, чей ход ожидается<br>user_hand - список косточек игрока<br>letters_in_pocket - количество букв в мешочке
           content:
             application/json:
               schema:
@@ -390,7 +391,7 @@ paths:
     post:
       tags:
         - Games
-      summary: Пропустить ход, отправив список букв игрока.
+      summary: Пропустить ход, отправив список букв для замены.
       parameters:
         - name: gameId
           in: path
@@ -423,7 +424,7 @@ paths:
     get:
       tags:
         - Games
-      summary: Получить состояние игры (матрица и счет пользователей) по ID игры
+      summary: Получить словарь игры
       parameters:
         - name: gameId
           in: path
@@ -433,7 +434,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Успешный ответ с состоянием игры (матрица и счет).
+          description: Успешный ответ со словарем игры (слова и их определения)
           content:
             application/json:
               schema:
@@ -515,7 +516,7 @@ components:
            items:
              type : object
              properties:
-               wordId:
+               word:
                  type : string 
                description:
                  type : string 
@@ -550,7 +551,9 @@ components:
              - WAITING 
              - ACTIVE 
              - FINISHED
-         field:
+         timer : 
+          type : string
+         field: 
            type : array
            items:
              type : array
@@ -627,7 +630,6 @@ components:
            items :
              type : string 
       
-  # User
     UserRequestDTO:
       type: object
       properties:
