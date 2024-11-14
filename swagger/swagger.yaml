@@ -230,7 +230,7 @@ paths:
           description: Неверный запрос.
 
   /lobbies/{lobbyId}/join:
-    post:
+    put:
       tags:
         - Lobbies
       summary: Присоединиться к лобби по ключу или ID.
@@ -281,7 +281,7 @@ paths:
           description: Лобби не найдено.
 
   /lobbies/{lobbyId}/ready:
-    post:
+    put:
       tags:
         - Lobbies
       summary: Подтвердить готовность игрока в лобби по ID
@@ -335,7 +335,7 @@ paths:
           description: Лобби не найдено.
 
   /games/{gameId}:
-    post:
+    put:
       tags:
         - Games
       summary: Совершить ход в игре.
@@ -388,7 +388,7 @@ paths:
             description: Игра не найдена.
 
   /games/{gameId}/skip:
-    post:
+    put:
       tags:
         - Games
       summary: Пропустить ход, отправив список букв для замены.
