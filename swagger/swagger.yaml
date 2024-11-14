@@ -377,7 +377,7 @@ paths:
             type: string
       responses:
         '200':
-          description: game_status - WAITING - игра еще нечачалсь, ACTIVE - игра в процессе, FINISHED - игра завершена<br>timer - оставшееся время на од игрока<br>field - матрица 15х15, представляющая игровое поле<br>users - список участников игры в порядке очереди ходов<br>active_user_id - id игрока, чей ход ожидается<br>user_hand - список косточек игрока<br>letters_in_pocket - количество букв в мешочке
+          description: game_status - WAITING - игра еще нечачалсь, ACTIVE - игра в процессе, FINISHED - игра завершена<br>timer - оставшееся время на ход игрока<br>field - матрица 15х15, представляющая игровое поле<br>users - список участников игры в порядке очереди ходов<br>active_user_id - id игрока, чей ход ожидается<br>user_hand - список косточек игрока<br>letters_in_pocket - количество букв в мешочке
           content:
             application/json:
               schema:
