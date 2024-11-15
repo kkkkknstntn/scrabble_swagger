@@ -57,8 +57,6 @@ paths:
           description: Неверный запрос
         '409':
           description: Никнейм уже занят
-        '500':
-          description: Ошибка сервера
 
   /user/{userId}:
     get:
@@ -229,14 +227,20 @@ paths:
         '400':
           description: Неверный запрос.
 
-  /lobbies/{lobbyId}/join:
+  /lobbies/join/{userId}:
     put:
       tags:
         - Lobbies
       summary: Присоединиться к лобби по ключу или ID.
       parameters:
-        - name: lobby_id
+        - name: userId
           in: path
+          required: true
+          description: ID игры для пропуска хода.
+          schema:
+            type: string  
+        - name: lobby_id
+          in: query
           required: false
           description: ID лобби для присоединения (необязательный).
           schema:
@@ -280,12 +284,18 @@ paths:
         '404':
           description: Лобби не найдено.
 
-  /lobbies/{lobbyId}/ready:
+  /lobbies/{lobbyId}/ready/{userId}:
     put:
       tags:
         - Lobbies
       summary: Подтвердить готовность игрока в лобби по ID
       parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID игры для пропуска хода.
+          schema:
+            type: string  
         - name: lobbyId
           in: path
           required: true
@@ -314,12 +324,18 @@ paths:
         '404':
           description: Лобби не найдено.
 
-  /lobbies/{lobbyId}/exit:
+  /lobbies/{lobbyId}/exit/{userId}:
     delete:
       tags:
         - Lobbies
       summary: Выйти из лобби по ID.
       parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID игры для пропуска хода.
+          schema:
+            type: string  
         - name: gameId
           in: path
           required: true
@@ -334,12 +350,18 @@ paths:
         '404':
           description: Лобби не найдено.
 
-  /games/{gameId}:
+  /games/{gameId}/{userId}:
     put:
       tags:
         - Games
       summary: Совершить ход в игре.
       parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID игры для пропуска хода.
+          schema:
+            type: string  
         - name: gameId
           in: path
           required: true
@@ -387,12 +409,18 @@ paths:
         '404':
             description: Игра не найдена.
 
-  /games/{gameId}/skip:
+  /games/{gameId}/skip/{userId}:
     put:
       tags:
         - Games
       summary: Пропустить ход, отправив список букв для замены.
       parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID игры для пропуска хода.
+          schema:
+            type: string  
         - name: gameId
           in: path
           required: true
@@ -409,10 +437,6 @@ paths:
       responses:
          '200':
            description : 'Успешный пропуск хода.'
-           content:
-             application/json:
-               schema:
-                $ref: '#/components/schemas/LetterResponseDTO'
          '403':
             description: Игрок не учавствует в данной игре.
          '404':
@@ -444,12 +468,18 @@ paths:
         '404':
             description: Игра не найдена.
 
-  /games/{gameId}/exit:
+  /games/{gameId}/exit/{userId}:
     delete:
       tags:
         - Games
       summary: Выйти из игры по ID.
       parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID игры для пропуска хода.
+          schema:
+            type: string  
         - name: gameId
           in: path
           required: true
@@ -545,6 +575,8 @@ components:
     GameResponseDTO:
        type : object 
        properties:
+         game_id:
+          type: integer
          game_status:
           type: string
           enum :
@@ -574,6 +606,7 @@ components:
          letters_in_pocket : 
             type : integer
        example:
+         game_id: 0
          game_status: ACTIVE
          field:
                 - [null, 'Б', null, null, null, null, null, null, null, null, null, null, null, null, null]
@@ -598,6 +631,7 @@ components:
                   score: 30
                 - user_id: 3
                   score: 20
+         timer: "0:32"
          active_user_id: 1
          user_hand:
                 - А
