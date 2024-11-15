@@ -81,6 +81,8 @@ paths:
                 $ref: '#/components/schemas/UserResponseDTO'
         '404':
           description: 'Пользователь не найден'
+        '500':
+          description: Ошибка сервера
 
     put:
       tags:
@@ -130,6 +132,8 @@ paths:
                   error:
                     type: string
                     example: "Никнейм уже занят, выберите другой"
+        '500':
+          description: Ошибка сервера
     delete:
       tags:
         - User
@@ -154,6 +158,8 @@ paths:
                     
         '404':
           description: Пользователь не найден
+        '500':
+          description: Ошибка сервера
 
   /lobbies:
     get:
@@ -228,6 +234,8 @@ paths:
                 $ref: '#/components/schemas/LobbyResponseDTO'
         '400':
           description: Неверный запрос.
+        '500':
+          description: Ошибка сервера
 
   /lobbies/{lobbyId}/join:
     put:
@@ -255,6 +263,8 @@ paths:
           description: Успешное присоединение к лобби.
         '404':
             description: Лобби не найдено.
+        '500':
+          description: Ошибка сервера
 
   /lobbies/{lobbyId}:
     get:
@@ -279,6 +289,8 @@ paths:
           description: Пользователь не находится в лобби.      
         '404':
           description: Лобби не найдено.
+        '500':
+          description: Ошибка сервера
 
   /lobbies/{lobbyId}/ready:
     put:
@@ -313,6 +325,8 @@ paths:
           description: Пользователь не находится в лобби.      
         '404':
           description: Лобби не найдено.
+        '500':
+          description: Ошибка сервера
 
   /lobbies/{lobbyId}/exit:
     delete:
@@ -333,6 +347,8 @@ paths:
           description: Пользователь не находится в лобби.      
         '404':
           description: Лобби не найдено.
+        '500':
+          description: Ошибка сервера
 
   /games/{gameId}:
     put:
@@ -363,6 +379,8 @@ paths:
             description: Игра не найдена.
         '409':
             description: В данный момент очередь другого игрока.
+        '500':
+          description: Ошибка сервера
 
     get:
       tags:
@@ -419,6 +437,8 @@ paths:
             description: Игра не найдена.
          '409':
             description: В данный момент очередь другого игрока.
+         '500':
+            description: Ошибка сервера
 
   /games/{gameId}/words:
     get:
@@ -443,6 +463,8 @@ paths:
             description: Игрок не учавствует в данной игре.
         '404':
             description: Игра не найдена.
+        '500':
+          description: Ошибка сервера
 
   /games/{gameId}/exit:
     delete:
@@ -463,6 +485,8 @@ paths:
             description: Игрок не учавствует в данной игре.
         '404':
           description: Игра не найдена.
+        '500':
+          description: Ошибка сервера
         
 components:
   schemas:
